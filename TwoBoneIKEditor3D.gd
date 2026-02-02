@@ -53,15 +53,17 @@ class_name TwoBoneIKEditor3D
 func _ready():
 	var scene_root = get_tree().edited_scene_root
 	
-	mid_node = BoneAttachment3D.new()
-	add_child(mid_node)
-	mid_node.set_owner(scene_root)
-	mid_node.name = "Mid"
+	if not mid_node:
+		mid_node = BoneAttachment3D.new()
+		add_child(mid_node)
+		mid_node.set_owner(scene_root)
+		mid_node.name = "Mid"
 	
-	tip_node = BoneAttachment3D.new()
-	mid_node.add_child(tip_node)
-	tip_node.set_owner(scene_root)
-	tip_node.name = "Tip"
+	if not tip_node:
+		tip_node = BoneAttachment3D.new()
+		mid_node.add_child(tip_node)
+		tip_node.set_owner(scene_root)
+		tip_node.name = "Tip"
 	
 	self.use_external_skeleton = true
 	mid_node.use_external_skeleton = true
