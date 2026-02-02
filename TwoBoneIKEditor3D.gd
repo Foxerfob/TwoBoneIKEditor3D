@@ -10,19 +10,19 @@ class_name TwoBoneIKEditor3D
 @export var skeleton : Skeleton3D :
 	set(v):
 		skeleton = v
-		self.external_skeleton = self.get_path_to(skeleton)
-		mid_node.external_skeleton = mid_node.get_path_to(skeleton)
-		tip_node.external_skeleton = tip_node.get_path_to(skeleton)
+		if skeleton: update()
 
 @export var mid_node: BoneAttachment3D :
 	set(v):
 		mid_node = v
-		if mid_node: update()
+		if mid_node and tip_node: 
+			update()
 
 @export var tip_node: BoneAttachment3D :
 	set(v):
 		tip_node = v
-		if tip_node: update()
+		if mid_node and tip_node: 
+			update()
 
 @export var active: bool = true :
 	set(v):
@@ -35,9 +35,7 @@ class_name TwoBoneIKEditor3D
 			printerr("set mid_node and tip_node first")
 			return
 		override_skeleton = v
-		self.override_pose = override_skeleton
-		mid_node.override_pose = override_skeleton
-		tip_node.override_pose = override_skeleton
+		update()
 
 @export var auto_update: bool = true :
 	set(v):
@@ -51,27 +49,47 @@ class_name TwoBoneIKEditor3D
 
 
 func _ready():
-	var scene_root = get_tree().edited_scene_root
-	
+	update()
+
+
+func _chain_setup():
 	if not mid_node:
 		mid_node = BoneAttachment3D.new()
-		add_child(mid_node)
-		mid_node.set_owner(scene_root)
-		mid_node.name = "Mid"
-	
 	if not tip_node:
 		tip_node = BoneAttachment3D.new()
+	
+	var scene_root = get_tree().edited_scene_root
+	
+	if mid_node.get_parent():
+		mid_node.reparent(self)
+	else:
+		self.add_child(mid_node)
+	mid_node.set_owner(scene_root)
+	mid_node.name = "Mid"
+	
+	if tip_node.get_parent():
+		tip_node.reparent(mid_node)
+	else:
 		mid_node.add_child(tip_node)
-		tip_node.set_owner(scene_root)
-		tip_node.name = "Tip"
+	tip_node.set_owner(scene_root)
+	tip_node.name = "Tip"
 	
 	self.use_external_skeleton = true
 	mid_node.use_external_skeleton = true
 	tip_node.use_external_skeleton = true
+	
+	self.external_skeleton = self.get_path_to(skeleton)
+	mid_node.external_skeleton = mid_node.get_path_to(skeleton)
+	tip_node.external_skeleton = tip_node.get_path_to(skeleton)
+	
+	self.override_pose = override_skeleton
+	mid_node.override_pose = override_skeleton
+	tip_node.override_pose = override_skeleton
 
 
 func update():
 	if not Engine.is_editor_hint(): return
+	_chain_setup()
 	set_notify_transform(auto_update)
 	set_process(auto_update)
 	solve_ik()
