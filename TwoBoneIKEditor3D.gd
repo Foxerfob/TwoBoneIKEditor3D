@@ -140,6 +140,7 @@ func solve_ik():
 	# 5. rotate
 	_aim_at(self, mid_node, p_elbow_goal)
 	_aim_at(mid_node, tip_node, p_target)
+	tip_node.global_rotation = target_node.global_rotation
 
 
 func _aim_at(parent: Node3D, child: Node3D, target_pos: Vector3):
