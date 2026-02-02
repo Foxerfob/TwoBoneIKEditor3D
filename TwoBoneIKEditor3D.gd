@@ -4,22 +4,30 @@ class_name TwoBoneIKEditor3D
 
 @export var target_node: Node3D :
 	set(v):
+		if v and v in [skeleton, mid_node, tip_node]:
+			return
 		target_node = v
 		if target_node: update()
 
 @export var skeleton : Skeleton3D :
 	set(v):
+		if v and v == target_node:
+			return
 		skeleton = v
 		if skeleton: update()
 
 @export var mid_node: BoneAttachment3D :
 	set(v):
+		if v and v in [target_node, tip_node]:
+			return
 		mid_node = v
 		if mid_node and tip_node: 
 			update()
 
 @export var tip_node: BoneAttachment3D :
 	set(v):
+		if v and v in [target_node, mid_node]:
+			return
 		tip_node = v
 		if mid_node and tip_node: 
 			update()
